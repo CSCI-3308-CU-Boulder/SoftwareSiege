@@ -3,6 +3,6 @@ This is a readme
 Project members:
 Liam Ryan
 Sandeep Kaushik
-Evan Clark
+Evan Clark was here
 Brad Nam
 Filip Forejtek
