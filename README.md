@@ -1,6 +1,6 @@
 
 This is a readme
-Project members:
+Project Team Members:
 Liam Ryan
 Sandeep Kaushik
 Evan Clark was here
