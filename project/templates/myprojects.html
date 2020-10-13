@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<%doc>
+    This is a Mako template. See https://docs.makotemplates.org/en/latest/
+</%doc>
+
+<table>
+    % for id, name in projects:
+    <tr>
+        <a href="/project/${id}">${name}</a>
+    </tr>
+    % endfor
+</table>
+
+
+</body>
+</html>

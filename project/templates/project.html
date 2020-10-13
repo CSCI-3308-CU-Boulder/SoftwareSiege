@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<%doc>
+    This is a Mako template. See https://docs.makotemplates.org/en/latest/
+</%doc>
+
+<table>
+    ## due and added are unix timestamps. You might want to use Moment.js to make them human-readible
+    ## TODO currently the backend does not pass who a task is assigned to to the template, but we probably don't care about that for project milestone 3
+    % for id, name, body, priority, due, added, project in tasks:
+    <tr>
+        <th>${name}</th>
+        <td>${body}</td>
+    </tr>
+    % endfor
+</table>
+
+
+</body>
+</html>
