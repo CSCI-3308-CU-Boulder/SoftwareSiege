@@ -204,7 +204,7 @@ def devrun():
     global db
     db = DatabaseActor.start(file)
     fill_tmp_db(db.ask)
-    run(host='localhost', port=8830)
+    run(host='0.0.0.0', port=8830)
 
     #os.unlink(file)
 
