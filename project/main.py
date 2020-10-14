@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import time
 
-from bottle import route, run, request, response, post, redirect
+from bottle import route, run, request, response, post, redirect, static_file
 from mako.template import Template
 import pykka
 from typeguard import typechecked
@@ -77,12 +77,12 @@ def Route_whoami():
     token = request.get_cookie("login_token")
     if token and token in login_tokens.keys():
         who = db_dictify(query("select * from users where uid=?", [login_tokens[token]])[0], SCHEMA_USER)
-        return repr(who)
+        return repr(who) # repr looks a lot like json BUT IT ISN'T
     else:
         return "You are not logged in!"
 
 @route('/myprojects')
-def Route_whoami():
+def Route_myprojects():
     token = request.get_cookie("login_token")
     if token and token in login_tokens.keys():
         projects_raw = query("select uppid from userprojects where upuid=?", [login_tokens[token]])
@@ -122,14 +122,17 @@ def Post_login():
 
 @route('/register')
 def Route_register():
-    return Template(open("templates/register.html").read()).render()
+    return Template(open("templates/register.html").read()).render(failure=False)
 
 @post('/register')
 def Post_register():
-    # TODO if you try to register as a user that already exists bad things will happen probably
     username = request.forms.get('username')
     password = request.forms.get('password')
     email = request.forms.get('email')
+
+    q = query("select * from users where username =?", params=[username])
+    if len(q):
+        return Template(open("templates/register.html").read()).render(failure=f"Username '{username}' already in use!")
 
     query("insert into users (username, email, password) values (?, ?, ?)", params=[username, email, argon2.hash(password)])
     id = query("select uid from users where username=?", params=[username])[0][0]
@@ -164,6 +167,16 @@ def Route_project(id):
 
     tasks = query("select * from tasks where project=?", params=[id])
     return Template(open("templates/project.html").read()).render(tasks=tasks)
+
+@route('/static/<path:path>')
+def Route_static_files(path):
+    # run the program in this directory or it won't work.
+    # if we have to run it with systemd or something, can just write a bash script that does cd $(dirname $0)
+    return static_file(path, os.getcwd()+"/static/")
+
+@route("/")
+def index_login_redirect():
+    redirect("/login")
 
 
 def main(database_file):
