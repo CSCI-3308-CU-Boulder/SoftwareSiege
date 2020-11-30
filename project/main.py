@@ -115,7 +115,7 @@ def Post_login():
             new_token = str(uuid4())
             response.set_cookie("login_token", new_token, path="/")
             login_tokens[new_token] = user["uid"]
-            redirect("/myprojects")
+            redirect("/app")
             return
         else:
             return Template(open("templates/login.html").read()).render(failure=True)
@@ -145,7 +145,7 @@ def Post_register():
     # TODO TEMPORARY add them to the example project
     query("insert into userprojects values (1, ?)", params=[id])
 
-    redirect("/myprojects")
+    redirect("/app")
 
 
 @route("/logout")
@@ -177,6 +177,48 @@ def Route_static_files(path):
 @route("/")
 def index_login_redirect():
     redirect("/login")
+
+@route("/app")
+def app_html():
+    token = request.get_cookie("login_token")
+    if token not in login_tokens.keys():
+        redirect("/login")
+        return
+    return static_file("index.html", os.getcwd()+"/frontend/")
+@route("/script.js")
+def app_js():
+    return static_file("script.js", os.getcwd()+"/frontend/")
+@route("/css/main.css")
+def app_css():
+    return static_file("css/main.css", os.getcwd()+"/frontend/")
+
+
+
+@post('/api/v1/ls_save')
+def Post_LS():
+    token = request.get_cookie("login_token")
+    if token not in login_tokens.keys():# or request.forms.get('auth') not in login_tokens.keys():
+        response.status = 401
+        return '{"success": 0, "error":"logged_out"}'
+    print(request.forms)
+    lists = request.forms.get('lists')
+
+    query("insert or replace into LS values ('lists', ?)", params=[lists])
+
+    return '{"success": 1}'
+
+@route('/api/v1/ls_get')
+def Get_LS():
+    token = request.get_cookie("login_token")
+    if token not in login_tokens.keys():# or request.query["auth"] not in login_tokens.keys():
+        response.status = 401
+        return '{"success": 0, "error":"logged_out"}'
+
+    q = query("select body from LS where key='lists'")
+    if len(q)!=1:
+        return "[]"
+    else:
+        return q[0][0]
 
 
 def main(database_file):
@@ -210,5 +252,4 @@ def devrun():
 
 
 if __name__ == '__main__':
-    # main("db.db")
-    devrun()
+    main("db.db")

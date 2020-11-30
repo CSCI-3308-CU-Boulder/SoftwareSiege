@@ -4,11 +4,16 @@ Install dependencies:
 
 	sudo pip3 install -r requirements.txt
 
-Run with a prefilled example database:
-	python3.8 main.py
+Run with a in-memory prefilled example database (users alice:password and bob:bob123 already exist): 
+	python3.8 dev.py
 
 Run with debugger:
 	python3.8 -m pdb -c continue dev.py
+
+Run with database db.db:
+	sqlite3 db.db < schema.ddl
+	python3.8 main.py
+	
 
 Then you have http://127.0.0.1:8830/ in browser.
 
@@ -16,7 +21,8 @@ There are two default users with username:password alice:password and bob:bob123
 
 /login is login
 /register is register. You will be logged in as the user you just created
-/projects/<id> By default, there is a project with id 1 with some example tasks
-/myprojects List a users Projects. User is by default a member of project 1
+/projects/<id> By default, there is a project with id 1 with some example tasks (unused)
+/myprojects List a users Projects. User is by default a member of project 1 (unused)
 /logout will log you out
 /whoami will tell you who you are logged in as, if anyone
+/app is the main app

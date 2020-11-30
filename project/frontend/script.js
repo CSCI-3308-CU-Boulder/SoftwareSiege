@@ -18,6 +18,45 @@ const LOCAL_STORAGE_SELECTED_LIST_ID_KEY = 'task.selectedListId'
 let lists = JSON.parse(localStorage.getItem(LOCAL_STORAGE_LIST_KEY)) || []
 let selectedListId = localStorage.getItem(LOCAL_STORAGE_SELECTED_LIST_ID_KEY)
 
+
+// ajax will not send cookies sometimes
+let auth = document.cookie.split("=")[1];
+
+function save_ls(){
+    $.post("/api/v1/ls_save", {lists: localStorage.getItem(LOCAL_STORAGE_LIST_KEY), auth:auth},
+        function (data, status){
+        console.log(data, status)
+    })
+}
+
+function get_ls(cb){
+    $.get("/api/v1/ls_get", {auth: auth}, function (data, status){
+        console.log(data, status)
+        let r = JSON.parse(data);
+        lists = r;
+        localStorage.setItem(LOCAL_STORAGE_LIST_KEY, JSON.stringify(lists))
+        if(cb){
+            cb()
+        }
+    })
+    }
+
+let global_lock = false;
+
+function reload_data(){
+    if(global_lock){return;}
+    global_lock = true;
+    get_ls(function (){
+        render()
+        global_lock = false;
+    })
+}
+
+window.onload = reload_data;
+
+setInterval(function(){ reload_data() }, 1000);
+
+
 listsContainer.addEventListener('click', e => {
   if (e.target.tagName.toLowerCase() === 'li') {
     selectedListId = e.target.dataset.listId
@@ -85,8 +124,11 @@ function saveAndRender() {
 }
 
 function save() {
+  global_lock = true;
   localStorage.setItem(LOCAL_STORAGE_LIST_KEY, JSON.stringify(lists))
   localStorage.setItem(LOCAL_STORAGE_SELECTED_LIST_ID_KEY, selectedListId)
+  save_ls()
+  global_lock= false;
 }
 
 function render() {
