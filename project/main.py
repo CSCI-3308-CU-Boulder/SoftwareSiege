@@ -246,7 +246,11 @@ def devrun():
     global db
     db = DatabaseActor.start(file)
     fill_tmp_db(db.ask)
-    run(host='0.0.0.0', port=8830)
+    port = os.getenv("PORT")
+    if port:
+        run(host='0.0.0.0', port=port)
+    else:
+        run(host='0.0.0.0', port=8830)
 
     #os.unlink(file)
 
